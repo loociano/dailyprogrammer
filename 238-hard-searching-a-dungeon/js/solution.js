@@ -59,8 +59,9 @@ var down = 'D';
 var Node = function(tile, pos){
   this.tile = tile;
   this.pos = pos;
-  this.parent = null;
+  this.prev = null;
   this.visited = false;
+  this.children = [];
 };
 
 var getStartPos = function(map){
@@ -81,36 +82,58 @@ var getStartPos = function(map){
     throw Error('Start was not found');
 };
 
-var bfs = function(map){
+var searchGoal = function(map){
   
   var queue = [];
-  var node = new Node(start, getStartPos(map));
-  queue.push(node);
+  var root = new Node(start, getStartPos(map));
+  queue.push(root);
+  var node = root;
 
   while (queue.length > 0){
     node = queue.shift();
     node.visited = true;
 
     if (node.tile === goal){
-      paintPath(map, node.parent);
-      return;
-    } else if (node.tile === up || node.tile === down){
-      move(queue, map, node, node.tile);
+      return node;
+    } else if (node.tile === up) {
+      move(queue, map, root, node, {x: 0, y: 0, z: -1});
+    } else if (node.tile === down){
+      move(queue, map, root, node, {x: 0, y: 0, z: 1});
     } else {
-      ['N', 'E', 'S', 'W'].forEach(function(dir){
-        move(queue, map, node, dir);
+      [{x: 0, y: -1, z: 0},
+       {x: 1, y: 0, z: 0},
+       {x: 0, y: 1, z: 0},
+       {x: -1, y: 0, z: 0}].forEach(function(dir){
+        move(queue, map, root, node, dir);
       });
     }
   }
   throw Error('Goal was not found');
 };
 
-var move = function(queue, map, node, dir){
+var isInTree = function(root, pos){
+  
+  var curr = root;
+  if (equalPos(curr.pos, pos)){
+    return true; // found
+  } else {
+    var result = false;
+    curr.children.forEach(function(node){
+      if (isInTree(node, pos)){
+        result = true;
+      }
+    });
+    return result;
+  }
+}
 
-  var next = getAdjacentNode(map, node, dir);
+var move = function(queue, map, root, node, dir){
+
+  var next = getAdjacentNode(map, root, node, dir);
 
   if (canMove(next)){
-      next.parent = node;
+      next.prev = node;
+      node.children.push(next);
       queue.push(next);
   }
 }
@@ -127,31 +150,15 @@ var getTileAt = function(map, pos){
   }
 };
 
-var getAdjacentNode = function(map, node, dir){
+var getAdjacentNode = function(map, root, node, dir){
   
-  var nextPos = {x: node.pos.x, y: node.pos.y, z: node.pos.z};
+  var nextPos = {
+    x: node.pos.x + dir.x, 
+    y: node.pos.y + dir.y, 
+    z: node.pos.z + dir.z
+  };
 
-  switch(dir){
-    case 'N':
-      nextPos.y--; break;
-
-    case 'W':
-      nextPos.x--; break;
-
-    case 'E':
-      nextPos.x++; break;
-
-    case 'S':
-      nextPos.y++; break;
-
-    case 'U':
-      nextPos.z--; break;
-
-    case 'D':
-      nextPos.z++; break;
-  }
-
-  if (repeated(node, nextPos)){
+  if (isInTree(root, nextPos)){
     return null;
   }
 
@@ -162,17 +169,6 @@ var getAdjacentNode = function(map, node, dir){
     return null;
   }
 };
-
-var repeated = function(node, nextPos){
-  var curr = node;
-  while(curr.parent !== null){
-    if (equalPos(curr.pos, nextPos)){
-      return true;
-    }
-    curr = curr.parent;
-  }
-  return false;
-}
 
 var equalPos = function(pos1, pos2){
   return pos1.x === pos2.x 
@@ -192,11 +188,11 @@ var printMap = function(map){
 
 var paintPath = function(map, node){
   var curr = node;
-  while(curr.parent !== null){
-    if (curr.tile !== up && curr.tile !== down){
+  while(curr.prev !== null){
+    if (curr.tile !== goal && curr.tile !== up && curr.tile !== down){
       paintTileAt(map, curr.pos);
     }
-    curr = curr.parent;
+    curr = curr.prev;
   }
 };
 
@@ -206,7 +202,7 @@ var paintTileAt = function(map, pos){
 };
 
 printMap(input);
-bfs(input);
+paintPath(input, searchGoal(input));
 printMap(input);
 
 })(input);
