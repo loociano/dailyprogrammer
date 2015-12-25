@@ -63,22 +63,34 @@ jet
 #### Bonus
 
 We can use our beloved enable1.txt (or other if you prefer that) to find real words or even sentences.
+
 Example 1
+```
 1321205
 
 ACUTE
 MUTE
+```
+
 Example 2
+```
 1252020518
 
 LETTER
 ABETTER
+```
+
 Example 3
+```
 85121215231518124
 
 HELLOWORLD
+```
+
 Bonus Input
+```
 81161625815129412519419122516181571811313518
+```
 
 #### Finally
 
