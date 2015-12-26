@@ -41,7 +41,6 @@ function huffman(input, symbols){
     });
 
   }
-  //console.log(results);
   return results;
 }
 
