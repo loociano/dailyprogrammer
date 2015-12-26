@@ -46,7 +46,7 @@ function numberToChar(number){
   return String.fromCharCode(number + 64);
 }
 
-function numberToTree(input, start, root, output){
+function solve(input, start, root, output){
 
   if (start === input.length){
     output.push(root.data); // leaf
@@ -67,13 +67,13 @@ function numberToTree(input, start, root, output){
 
   if (current > 0 && current < 10 && next !== 0){
     var node = root.append(root.data + numberToChar(current));
-    numberToTree(input, start + 1, node, output);
+    solve(input, start + 1, node, output);
   }
 
   var currentAndNext = parseInt(input[start] + input[start + 1]);
   if (currentAndNext > 0 && currentAndNext < 27){
     var node = root.append(root.data + numberToChar(currentAndNext));
-    numberToTree(input, start + 2, node, output);
+    solve(input, start + 2, node, output);
   }
   
 }
@@ -87,7 +87,7 @@ process.stdin.on('data', function (input) {
   
   console.log('');
   var output = [];
-  numberToTree(input.trim(), 0, new Node(''), output);
+  solve(input.trim(), 0, new Node(''), output);
 
   console.log(output.length + ' combinations');
 
