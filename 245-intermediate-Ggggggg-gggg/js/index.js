@@ -108,14 +108,16 @@ function genKey(message, symbols){
     count++; 
   }
 
+  if (count === 0) return {};
+
   // hashmap to ordered array
   var ordered = [];
   for(var l in letters){
-    ordered.push({symbol: l, w: letters[l]});
+    ordered.push({symbol: l, w: letters[l]/count});
   }
 
   ordered.sort(function(a,b){
-    return a.w - b.w;
+    return b.w - a.w;
   });
 
   return huffman(ordered, symbols);
