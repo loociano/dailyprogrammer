@@ -96,7 +96,7 @@ function decode(key, message, symbols){
   return output.join('') || message;
 }
 
-function genKey(message, symbols){
+function genKeyMap(message, symbols){
 
   var letters = {};
 
@@ -114,7 +114,7 @@ function genKey(message, symbols){
 function encode(message, symbols){
 
   var result = [];
-  var keymap = genKey(message, symbols);
+  var keymap = genKeyMap(message, symbols);
 
   var firstline = '';
   for (var key in keymap){
