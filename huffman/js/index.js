@@ -2,25 +2,33 @@
 
 function huffman(input, symbols){
 
-  var symbols = symbols || ['0', '1'];
-  var results = {};
+  var array = [];
+  var probSum = 0;
+  for(var i in input){
+    array.push({symbol: i, w: input[i]});
+    probSum += input[i];
+  }
 
-  while(input.length > 1){
+  if (probSum !== 1) return input;
+
+  while(array.length > 1){
     
-    var node1 = input.pop();
-    var node2 = input.pop();
+    array.sort(function(a, b){
+      return b.w - a.w;
+    });
 
-    var node = {
-      w: node1.w + node2.w
-    };
+    var node1 = array.pop();
+    var node2 = array.pop();
+
+    var node = { w: node1.w + node2.w };
     node[symbols[1]] = node1;
     node[symbols[0]] = node2;
 
-    input.push(node);
+    array.push(node);
   }
 
   var queue = [];
-  queue.push(input.pop());
+  queue.push(array.pop());
 
   while (queue.length > 0){
     var n = queue.shift();
@@ -31,19 +39,23 @@ function huffman(input, symbols){
         n[bit].code = carry + bit;
         queue.push(n[bit]);
       } else {
-        results[n.symbol] = n.code;
+        input[n.symbol] = n.code;
       }
     });
 
   }
-  return results;
+  return input;
 }
 
-var input = [
-  {symbol: 'a1', w:0.4}, 
-  {symbol: 'a2', w:0.35}, 
-  {symbol: 'a3', w:0.2}, 
-  {symbol: 'a4', w:0.05}];
+var input = {
+  'a': 0.25,
+  'b': 0.25,
+  'c': 0.2,
+  'd': 0.15,
+  'e': 0.10,
+  'f': 0.025,
+  'g': 0.025
+};
 
-console.log(huffman(input));
+console.log(huffman(input, ['0', '1']));
 
