@@ -17,8 +17,8 @@ function dateformat(lines){
     if (tokens[0].length > 2){
       lines[l] = tokens.join('-'); // Y M D
     } else {
-      if (tokens[2].length < 4){
-        tokens[2] = '20' + tokens[2];
+      if (tokens[2] < 100){
+        tokens[2] = parseInt(tokens[2]) + 2000;
       }
       lines[l] = tokens[2] + '-' + tokens[0] + '-' + tokens[1]; // M D Y
     }
