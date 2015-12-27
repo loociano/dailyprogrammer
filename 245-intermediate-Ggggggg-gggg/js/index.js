@@ -1,31 +1,31 @@
 'use strict';
 var fs = require('fs');
 
-/* Examples:
-   @param input: [{symbol: 'a', w: 0.8}, {symbol: 'b', w: 0.2}]
-   @param symbols: ['0', '1'] 
-   @return {'a': 0, 'b': 1}
-   */
 function huffman(input, symbols){
 
-  var results = {};
+  var array = [];
+  for(var i in input){
+    array.push({symbol: i, w: input[i]});
+  }
 
-  while(input.length > 1){
+  while(array.length > 1){
     
-    var node1 = input.pop();
-    var node2 = input.pop();
+    array.sort(function(a, b){
+      return b.w - a.w;
+    });
 
-    var node = {
-      w: node1.w + node2.w
-    };
+    var node1 = array.pop();
+    var node2 = array.pop();
+
+    var node = { w: node1.w + node2.w };
     node[symbols[1]] = node1;
     node[symbols[0]] = node2;
 
-    input.push(node);
+    array.push(node);
   }
 
   var queue = [];
-  queue.push(input.pop());
+  if (array.length > 0) queue.push(array.pop());
 
   while (queue.length > 0){
     var n = queue.shift();
@@ -36,16 +36,22 @@ function huffman(input, symbols){
         n[bit].code = carry + bit;
         queue.push(n[bit]);
       } else {
-        results[n.symbol] = n.code;
+        input[n.symbol] = n.code || symbols[0];
       }
     });
 
   }
-  return results;
+  return input;
 }
 
 function load(filename){
   return fs.readFileSync(filename, 'utf8');
+}
+
+function removeDups(array){
+  return array.join('').split('').filter(function(value, i, array){
+    return i == array.indexOf(value);
+  });
 }
 
 function getMessageWithKey(data){
@@ -54,17 +60,14 @@ function getMessageWithKey(data){
   var key = input.splice(0, 1)[0].split(' ');
 
   var map = {};
-  for(var i = 0; i < key.length; i+=2){
-    map[key[i+1]] = key[i];
+  if (key.length > 1){
+    for(var i = 0; i < key.length; i+=2){
+      map[key[i+1]] = key[i];
+    }
   }
 
-  // Get symbols from keys
-  var symbols = Object.keys(map).join('').split('').filter(function(value,i,array){
-    return i == array.indexOf(value); // Discard duplicates
-  });
-
   return {
-    symbols: symbols,
+    symbols: removeDups(Object.keys(map)),
     key: map, 
     message: input.join('\r\n')
   };
@@ -72,6 +75,10 @@ function getMessageWithKey(data){
 
 function decode(key, message, symbols){
 
+  if (!key || symbols.length === 0) {
+    return message;
+  }
+  
   var output = [];
   var cursor = 0;
   var buffer = message[cursor];
@@ -96,30 +103,16 @@ function decode(key, message, symbols){
 function genKey(message, symbols){
 
   var letters = {};
-  var count = 0;
 
-  // Get letters and occurrences
+  // Count letter repetition
   for(var i = 0; i < message.length; i++){
     var letter = message[i];
     if (!/[a-zA-Z]/.test(letter)) continue;
     if (!letters[letter]) letters[letter] = 0;
     letters[letter]++;
-    count++; 
   }
 
-  if (count === 0) return {};
-
-  // hashmap to ordered array
-  var ordered = [];
-  for(var l in letters){
-    ordered.push({symbol: l, w: letters[l]/count});
-  }
-
-  ordered.sort(function(a,b){
-    return b.w - a.w;
-  });
-
-  return huffman(ordered, symbols);
+  return huffman(letters, symbols);
 }
 
 function encode(message, symbols){
@@ -164,6 +157,7 @@ console.log();
 var challenge = load('../encodeChallenge.txt');
 
 var encoded = encode(challenge, ['g', 'G']);
+fs.writeFileSync('../encoded.txt', encoded);
 console.log(encoded);
 
 console.log();
