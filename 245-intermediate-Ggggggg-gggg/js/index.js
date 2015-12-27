@@ -74,10 +74,6 @@ function getMessageWithKey(data){
 }
 
 function decode(key, message, symbols){
-
-  if (!key || symbols.length === 0) {
-    return message;
-  }
   
   var output = [];
   var cursor = 0;
@@ -97,7 +93,7 @@ function decode(key, message, symbols){
       output.push(next);
     }
   }
-  return output.join('');
+  return output.join('') || message;
 }
 
 function genKey(message, symbols){
