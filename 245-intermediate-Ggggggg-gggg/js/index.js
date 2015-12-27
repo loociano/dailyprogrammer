@@ -137,8 +137,7 @@ console.log(decode(load('../decodeChallenge.txt')));
 console.log();
 
 var challenge = load('../encodeChallenge.txt');
-var encoded = encode(challenge, ['g', 'G']);
-fs.writeFileSync('../encoded.txt', encoded);
-console.log(encoded);
+
+fs.writeFileSync('../encoded.txt', encode(challenge, ['g', 'G']));
 console.log();
-console.log(challenge === decode(encoded));
+console.log(challenge === decode(encode(challenge, ['g', 'G'])));
