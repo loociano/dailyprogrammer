@@ -54,26 +54,20 @@ function removeDups(array){
   });
 }
 
-function getMessageWithKey(data){
-  
+function decode(data){
+
   var input = data.split('\r\n');
-  var key = input.splice(0, 1)[0].split(' ');
+  var keys = input.splice(0, 1)[0].split(' ');
+  var message = input.join('\r\n');
 
   var map = {};
-  if (key.length > 1){
-    for(var i = 0; i < key.length; i+=2){
-      map[key[i+1]] = key[i];
+  if (keys.length > 1){
+    for(var i = 0; i < keys.length; i+=2){
+      map[keys[i+1]] = keys[i];
     }
   }
 
-  return {
-    symbols: removeDups(Object.keys(map)),
-    key: map, 
-    message: input.join('\r\n')
-  };
-}
-
-function decode(key, message, symbols){
+  var symbols = removeDups(Object.keys(map));
   
   var output = [];
   var cursor = 0;
@@ -81,8 +75,8 @@ function decode(key, message, symbols){
 
   while(cursor < message.length){
     
-    if (key[buffer] !== undefined){
-      output.push(key[buffer]);
+    if (map[buffer] !== undefined){
+      output.push(map[buffer]);
       buffer = '';
     }
 
@@ -135,28 +129,16 @@ function encode(message, symbols){
 
 /********************************************************/
 
-var input1 = getMessageWithKey(load('../input1.txt'));
-console.log(decode(input1.key, input1.message, input1.symbols));
-
+console.log(decode(load('../input1.txt')));
 console.log();
-
-var input2 = getMessageWithKey(load('../input2.txt'));
-console.log(decode(input2.key, input2.message, input2.symbols));
-
+console.log(decode(load('../input2.txt')));
 console.log();
-
-var decodeChallenge = getMessageWithKey(load('../decodeChallenge.txt'));
-console.log(decode(decodeChallenge.key, decodeChallenge.message, decodeChallenge.symbols));
-
+console.log(decode(load('../decodeChallenge.txt')));
 console.log();
 
 var challenge = load('../encodeChallenge.txt');
-
 var encoded = encode(challenge, ['g', 'G']);
 fs.writeFileSync('../encoded.txt', encoded);
 console.log(encoded);
-
 console.log();
-
-var encodeChallenge = getMessageWithKey(encoded);
-console.log(challenge === decode(encodeChallenge.key, encodeChallenge.message, encodeChallenge.symbols));
+console.log(challenge === decode(encoded));
