@@ -29,5 +29,29 @@ function secretSanta(input){
   return result.join('\n');
 }
 
+function check(input, output){
+  var map = {};
+  var families = input.split('\n');
+  var assig = output.split('\n');
+  for (var i = 0; i < assig.length; i++){
+    var pair = assig[i].split(' -> ');
+    map[pair[0]] = pair[1];
+    
+    if (map[pair[1]] === pair[0]){
+      return false;
+    }
+
+    for(var j = 0; j < families.length; j++){
+      var members = families[j].split(' ');
+      if (members.indexOf(pair[0]) > -1 && members.indexOf(pair[1]) > -1){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 var input = 'Sean\nWinnie\nBrian Amy\nSamir\nJoe Bethany\nBruno Anna Matthew Lucas\nGabriel Martha Philip\nAndre\nDanielle\nLeo Cinthia\nPaula\nMary Jane\nAnderson\nPriscilla\nRegis Julianna Arthur\nMark Marina\nAlex Andrea';
-console.log(secretSanta(input));
+var output = secretSanta(input); 
+console.log(output);
+console.log(check(input, output));
