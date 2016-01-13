@@ -1,17 +1,12 @@
 function maxTrade(input) {
 
   var prices = input.split(' ');
-  var sell, buy,
-    max = 0;
+  var sell, buy, max = 0;
 
   for (var i = 0; i < prices.length - 2; i++) {
     for (var j = i + 2; j < prices.length; j++) {
       var gain = prices[j] - prices[i];
-      if (gain > max) {
-        max = gain;
-        buy = i;
-        sell = j;
-      }
+      gain > max && (max = gain, buy = i, sell = j);
     }
   }
   return prices[buy] + ' ' + prices[sell];
